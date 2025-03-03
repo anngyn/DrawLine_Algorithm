@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Computer Graphics Algorithms</title>
+    <link href="style/main.css" rel="stylesheet" type="text/css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+
+        /* Các phần tử chứa các nút */
+        #algorithm-title {
+            text-align: center;
+            /* Căn giữa tiêu đề */
+            font-weight: bold;
+            /* In đậm tiêu đề */
+            font-size: 24px;
+            /* Kích thước chữ (tùy chỉnh nếu cần) */
+            margin: 20px 0;
+            /* Khoảng cách phía trên và dưới của tiêu đề */
+        }
+
+        #buttonContainer,
+        #resetButtonContainer {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        /* Các nút lựa chọn thuật toán */
+        .algorithm-menu {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        /* Các nút */
+        button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+
+        /* Hiệu ứng hover khi rê chuột lên nút */
+        button:hover {
+            background-color: #45a049;
+        }
+
+        /* Nút đang được chọn */
+        button.active {
+            background-color: #2E8B57;
+            font-weight: bold;
+        }
+
+        /* Các phần tử canvas */
+        #canvas {
+            display: block;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border: 1px solid #ccc;
+        }
+
+        /* Nút reset */
+        #btnReset {
+            padding: 10px 20px;
+            background-color: #f44336;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        #btnReset:hover {
+            background-color: #e53935;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="algorithm-title">
+        <h1>Algorithms</h1>
+    </div>
+    <div id="buttonContainer">
+        <button id="btnDDA">DDA</button>
+        <button id="btnBresenham">Bresenham</button>
+        <button id="btnMidpoint">Midpoint</button>
+    </div>
+    <canvas id="canvas" width="800" height="600"></canvas>
+
+    <div id="resetButtonContainer">
+        <button id="btnReset">Reset</button>
+    </div>
+
+    <script src="src/event.js"></script>
+    <script src="src/dda.js"></script>
+    <script src="src/bresenham.js"></script>
+    <script src="src/midpoint.js"></script>
+</body>
+
+</html>
