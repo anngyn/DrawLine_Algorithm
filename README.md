@@ -32,7 +32,7 @@
 1. Thực hiện tải repo từ Github
 
 ```bash
-git clone 
+git clone https://github.com/anngyn/DrawLine_Algorithm/tree/main
 ```
 
 2. Chạy Live Server trên VSCode
