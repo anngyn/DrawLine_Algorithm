@@ -9,7 +9,7 @@
 
 ## Giới thiệu
 * **Tên môn học:** Xử lý ảnh và ứng dụng - CS406.P11
-* **Năm học:** HK1 (2024 - 2025)
+* **Năm học:** HK2 (2024 - 2025)
 * **Giảng viên**: Cáp Phạm Đình Thăng
 * **Sinh viên thực hiện:** Nguyễn Ấn - 22520019
 
