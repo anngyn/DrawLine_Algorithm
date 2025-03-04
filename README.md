@@ -5,7 +5,7 @@
 </p>
 
 <h1 align="center"><b>ĐỒ HỌA MÁY TÍNH</b></h1>
-<h2 align = "center">Vẽ đường thằng DDA - Bresenham </h2>
+<h2 align = "center">Vẽ đường thẳng DDA - Bresenham </h2>
 
 ## Giới thiệu
 * **Tên môn học:** Xử lý ảnh và ứng dụng - CS406.P11
