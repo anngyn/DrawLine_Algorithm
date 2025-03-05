@@ -1,76 +1,88 @@
+import { PainterEllipse } from "./ellipse.js";
+import { PainterBre } from "./bresenham.js";
+import { PainterMid } from "./midpoint.js";
+
 var canvas = document.getElementById("canvas");
 var context = canvas.getContext("2d");
 
-var btnDDA = document.getElementById("btnDDA");
-var btnBresenham = document.getElementById("btnBresenham");
-var btnMidpoint = document.getElementById("btnMidpoint");
-var btnReset = document.getElementById("btnReset");
+var width = 800;
+var height = 600;
 
-const algorithmTitle = document.getElementById('algorithm-title');
+var bgRgba = [240, 240, 200, 255];
+var pointRgba = [0, 0, 255, 255];
+var lineRgba = [38, 38, 99, 255];
+var vlineRgba = [101, 96, 194, 255];
 
-var currentAlgorithm = null; // Thuật toán hiện tại
-var eventListeners = [];
+var Algorithm_title = document.getElementById("algorithm-title")
 
-function removeAllEventListeners() {
-    eventListeners.forEach(function (listener) {
-        canvas.removeEventListener(listener.type, listener.handler);
+var painterDDA = new PainterEllipse(context, width, height, lineRgba, vlineRgba);
+var painterMid = new PainterMid(context, width, height, lineRgba, vlineRgba);
+var painterBre = new PainterBre(context, width, height, lineRgba, vlineRgba);
+
+var painter = painterDDA;
+
+document.getElementById("btnDDA").addEventListener("click", function () {
+    Algorithm_title.textContent = "DDA Algorithm"
+    painter = painterDDA;
+    setActiveButton("btnDDA");
+});
+document.getElementById("btnBresenham").addEventListener("click", function () {
+    Algorithm_title.textContent = "Bresenham Algorithm"
+    painter = painterBre;
+    setActiveButton("btnBresenham");
+});
+document.getElementById("btnMidpoint").addEventListener("click", function () {
+    Algorithm_title.textContent = "Midpoint Circle Algorithm"
+    painter = painterMid;
+    setActiveButton("btnMidpoint");
+});
+
+function setActiveButton(selectedButtonId) {
+    const buttons = document.querySelectorAll("#buttonContainer button");
+    buttons.forEach(button => {
+        button.classList.remove("active");
     });
-    eventListeners = [];  // Xóa danh sách event listeners
+    document.getElementById(selectedButtonId).classList.add("active");
 }
 
-// Thiết lập sự kiện cho các nút
-btnDDA.addEventListener("click", function () {
-    setActiveButton(btnDDA);
-    currentAlgorithm = "dda";
-    algorithmTitle.textContent = 'DDA Line Algorithm';
-    resetCanvas();
-});
+canvas.setAttribute("width", width);
+canvas.setAttribute("height", height);
 
-btnBresenham.addEventListener("click", function () {
-    setActiveButton(btnBresenham);
-    currentAlgorithm = "bresenham";
-    algorithmTitle.textContent = 'Bresenham Line Algorithm';
-    resetCanvas();
-});
+function getPosOnCanvas(x, y) {
+    var bbox = canvas.getBoundingClientRect();
+    return [Math.floor(x - bbox.left * (canvas.width / bbox.width) + 0.5),
+    Math.floor(y - bbox.top * (canvas.height / bbox.height) + 0.5)];
+};
 
-btnMidpoint.addEventListener("click", function () {
-    setActiveButton(btnMidpoint);
-    currentAlgorithm = "midpoint";
-    algorithmTitle.textContent = 'Midpoint Circle Algorithm';
-    resetCanvas();
-});
+var state = 0;
 
-btnReset.addEventListener("click", function () {
-    resetCanvas();
-    clearActiveButton();
-    currentAlgorithm = null;
-});
+function doMouseMove(e) {
+    if (state == 0 || state == 2) { return; }
+    var p = getPosOnCanvas(e.clientX, e.clientY);
+    painter.draw(p);
+};
 
-function setActiveButton(button) {
-    // Xóa lớp active khỏi tất cả các nút
-    clearActiveButton();
-    // Thêm lớp active vào nút được chọn
-    button.classList.add("active");
-}
-
-function clearActiveButton() {
-    btnDDA.classList.remove("active");
-    btnBresenham.classList.remove("active");
-    btnMidpoint.classList.remove("active");
-}
-
-
-
-function resetCanvas() {
-    lines = [];
-    context.clearRect(0, 0, canvas.width, canvas.height);
-    removeAllEventListeners()
-
-    if (currentAlgorithm === "dda") {
-        startDDA();
-    } else if (currentAlgorithm === "bresenham") {
-        startBresenham();
-    } else if (currentAlgorithm === "midpoint") {
-        startMidpoint();
+function doMouseDown(e) {
+    if (state == 2 || e.button != 0) {
+        return;
     }
-}
+    var p = getPosOnCanvas(e.clientX, e.clientY);
+    painter.addPoint(p);
+    painter.draw(p);
+    if (state == 0) {
+        state = 1;
+    }
+};
+
+function doKeyDown(e) {
+    if (state == 2) { return; }
+    var keyId = e.keyCode ? e.keyCode : e.which;
+    if (keyId == 27 && state == 1) {
+        state = 2;
+        painter.draw(painter.points[painter.points.length - 1]);
+    }
+};
+
+canvas.onmousemove = function (event) { doMouseMove(event) };
+canvas.onmousedown = function (event) { doMouseDown(event) };
+document.onkeydown = function (event) { doKeyDown(event) };

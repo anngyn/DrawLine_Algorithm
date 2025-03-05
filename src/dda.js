@@ -1,72 +1,86 @@
-function startDDA() {
-    var isDrawing = false;
-    var startPoint = null;
+export class Painter {
+    constructor(context, width, height, lineRgba, vlineRgba) {
+        this.context = context;
+        this.lineRgba = lineRgba;
+        this.vlineRgba = vlineRgba;
+        this.imageData = context.createImageData(width, height);
+        this.point = [];
+        this.end = [];
+        this.now = [-1, -1];
+        this.width = width;
+        this.height = height;
+        this.getPixelIndex = function (x, y) {
+            if (x < 0 || y < 0 || x >= this.width || y >= this.height)
+                return -1;
+            return (x + y * width) << 2;
+        };
+        this.setPixel = function (x, y, rgba) {
+            var pixelIndex = this.getPixelIndex(x, y);
+            if (pixelIndex == -1) return;
+            for (var i = 0; i < 4; i++) {
+                this.imageData.data[pixelIndex + i] = rgba[i];
+            }
 
-    canvas.addEventListener("mousedown", function (event) {
-        var point = getPosOnCanvas(event.clientX, event.clientY);
-        if (!isDrawing) {
-            startPoint = point;
-            isDrawing = true;
-        } else {
-            // Vẽ đường thẳng và lưu vào mảng lines
-            drawBresenhamLine(startPoint, point, [0, 0, 0, 255]);
-            lines.push([startPoint, point]);  // Lưu đường vừa vẽ vào mảng
-            isDrawing = false;
-        }
-    });
+        };
+        this.clear = function () {
+            for (var i = 0; i < this.imageData.data.length; i += 4) {
+                this.imageData.data[i + 3] = 0;
+            }
 
-    // Thêm sự kiện mousemove để vẽ đường thẳng trong quá trình di chuyển chuột
-    canvas.addEventListener("mousemove", function (event) {
-        if (isDrawing && startPoint) {
-            var point = getPosOnCanvas(event.clientX, event.clientY);
-
-            // Xóa canvas trước khi vẽ lại tất cả các đường
-            context.clearRect(0, 0, canvas.width, canvas.height);
-
-            // Vẽ tất cả các đường đã vẽ
-            lines.forEach(function (line) {
-                drawBresenhamLine(line[0], line[1], [0, 0, 0, 255]);
-            });
-
-            // Vẽ đường thẳng mới từ điểm bắt đầu đến vị trí chuột
-            drawBresenhamLine(startPoint, point, [0, 0, 0, 255]);
-        }
-    });
-
-    // Thêm sự kiện keydown để xóa canvas khi nhấn phím Esc
-    document.addEventListener("keydown", function (event) {
-        if (event.key === "Escape") {
-            context.clearRect(0, 0, canvas.width, canvas.height);  // Xóa canvas
-            lines = [];  // Xóa mảng lưu trữ các đường đã vẽ
-        }
-    });
-}
-
-function drawDDALine(p0, p1, rgba) {
-    var x0 = p0[0], y0 = p0[1];
-    var x1 = p1[0], y1 = p1[1];
-    var dx = x1 - x0, dy = y1 - y0;
-    var steps = Math.max(Math.abs(dx), Math.abs(dy));
-    var xIncrement = dx / steps;
-    var yIncrement = dy / steps;
-    var x = x0, y = y0;
-
-    for (var i = 0; i <= steps; i++) {
-        setPixel(Math.round(x), Math.round(y), rgba);
-        x += xIncrement;
-        y += yIncrement;
+        };
+        this.drawPoint = function (p, rgba) {
+            var x = p[0];
+            var y = p[1];
+            for (var i = -1; i <= 1; i++)
+                for (var j = -1; j <= 1; j++)
+                    this.setPixel(x + i, y + j, rgba);
+        };
+        this.drawLine = function (p0, p1, rgba) {
+            var x0 = p0[0], y0 = p0[1];
+            var x1 = p1[0], y1 = p1[1];
+            var dx = x1 - x0, dy = y1 - y0;
+            if (dx == 0 && dy == 0)
+                return;
+            if (Math.abs(dy) <= Math.abs(dx)) {
+                if (x1 < x0) {
+                    var tx = x0; x0 = x1; x1 = tx;
+                    var ty = y0; y0 = y1; y1 = ty;
+                }
+                var k = dy / dx;
+                var y = y0;
+                for (var x = x0; x <= x1; x++) {
+                    this.setPixel(x, Math.floor(y + 0, 5), rgba);
+                    y = y + k;
+                }
+            }
+            else {
+                if (y1 < y0) {
+                    var tx = x0; x0 = x1; x1 = tx;
+                    var ty = y0; y0 = y1; y1 = ty;
+                }
+                var k = dx / dy;
+                var x = x0;
+                for (var y = y0; y <= y1; y++) {
+                    this.setPixel(Math.floor(x + 0.5), y, rgba);
+                    x = x + k;
+                }
+            }
+        };
+        this.addPoint = function (p) {
+            this.point.push(p);
+        };
+        this.addEnd = function (p) {
+            this.end.push(p);
+        };
+        this.draw = function (p) {
+            this.clear();
+            for (var i = 0; i < this.point.length - 1; i += 2) {
+                this.drawLine(this.point[i], this.point[i + 1], this.lineRgba);
+            }
+            if (i < this.point.length) {
+                this.drawLine(this.point[i], p, this.vlineRgba);
+            }
+            this.context.putImageData(this.imageData, 0, 0);
+        };
     }
-}
-
-function setPixel(x, y, rgba) {
-    context.fillStyle = `rgba(${rgba[0]}, ${rgba[1]}, ${rgba[2]}, ${rgba[3] / 255})`;
-    context.fillRect(x, y, 1, 1);  // Set a 1x1 pixel
-}
-
-function getPosOnCanvas(x, y) {
-    const bbox = canvas.getBoundingClientRect();
-    return [
-        Math.floor((x - bbox.left) * (canvas.width / bbox.width) + 0.5),
-        Math.floor((y - bbox.top) * (canvas.height / bbox.height) + 0.5)
-    ];
 }
