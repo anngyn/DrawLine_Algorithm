@@ -1,4 +1,4 @@
-import { PainterEllipse } from "./ellipse.js";
+import { Painter } from "./dda.js";
 import { PainterBre } from "./bresenham.js";
 import { PainterMid } from "./midpoint.js";
 
@@ -15,7 +15,7 @@ var vlineRgba = [101, 96, 194, 255];
 
 var Algorithm_title = document.getElementById("algorithm-title")
 
-var painterDDA = new PainterEllipse(context, width, height, lineRgba, vlineRgba);
+var painterDDA = new Painter(context, width, height, lineRgba, vlineRgba);
 var painterMid = new PainterMid(context, width, height, lineRgba, vlineRgba);
 var painterBre = new PainterBre(context, width, height, lineRgba, vlineRgba);
 
